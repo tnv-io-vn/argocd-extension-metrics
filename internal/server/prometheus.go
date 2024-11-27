@@ -102,7 +102,7 @@ func executeGraphQuery(ctx *gin.Context, queryExpression string, env map[string]
 		End:   time.Now(),
 		Step:  time.Minute,
 	}
-
+	fmt.Println(queryExpression)
 	fmt.Println(strQuery)
 
 	result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
