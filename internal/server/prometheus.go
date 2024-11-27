@@ -188,11 +188,13 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 					result, warnings, err = executeGraphQuery(ctx, threshold.QueryExpression, env, duration, pp)
 				}
 				if err != nil {
+					fmt.Println("----------> ERROR 1")
 					ctx.JSON(http.StatusBadRequest, err)
 					return
 				}
 				if len(warnings) > 0 {
 					warningMsg := fmt.Errorf("query warnings: %s", warnings)
+					fmt.Println("----------> ERROR 2")
 					ctx.JSON(http.StatusBadRequest, warningMsg.Error())
 					return
 				}
