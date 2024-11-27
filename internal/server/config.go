@@ -38,6 +38,8 @@ type Row struct {
 func (r *Row) getGraph(name string) *Graph {
 	for _, graph := range r.Graphs {
 		if graph.Name == name {
+			fmt.Println("graph")
+			fmt.Println(graph)
 			return graph
 		}
 	}
