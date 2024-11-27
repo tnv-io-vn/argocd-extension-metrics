@@ -1,0 +1,71 @@
+name: Publish and Sign Container Image
+on:
+  workflow_call:
+    inputs:
+      ghcr_image_name:
+        required: false
+        type: string
+      platforms:
+        type: string
+        default: linux/amd64
+      push:
+        required: true
+        type: boolean
+        default: false
+
+
+
+    secrets:
+      ghcr_username:
+        required: false
+      ghcr_password:
+        required: false
+    outputs:
+      image-digest:
+        description: "sha256 digest of container image"
+        value: ${{ jobs.publish.outputs.image-digest }}
+
+permissions: {}
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+      packages: write # Used to push images to `ghcr.io` if used.
+    runs-on: ubuntu-22.04
+    outputs:
+      image-digest: ${{ steps.image.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8410ad0602e1e429cee44a835ae9f77f654a6694 # v4.0.0
+
+      - uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+      - uses: docker/setup-buildx-action@4fd812986e6c8c2a69e18311145f9371337f27d4 # v3.4.0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.ghcr_username }}
+          password: ${{ secrets.ghcr_password }}
+        if: ${{ inputs.ghcr_image_name && inputs.push }}
+
+      - name: Setup tags for container image
+        run: |
+          echo "IMAGE_TAG=${{ inputs.ghcr_image_name }}:latest" >> $GITHUB_ENV
+
+      - name: Build and push container image
+        id: image
+        uses: docker/build-push-action@1a162644f9a7e87d8f4b053101d1d9a712edc18c #v6.3.0
+        with:
+          context: .
+          platforms: ${{ inputs.platforms }}
+          push: ${{ inputs.push }}
+          tags: ${{ env.IMAGE_TAG }}
+          provenance: false
+          sbom: false
+          build-args: |
+            GIT_TAG=${{env.GIT_TAG}}
+            GIT_COMMIT=${{env.GIT_COMMIT}}
+            BUILD_DATE=${{env.BUILD_DATE}}
+            GIT_TREE_STATE=${{env.GIT_TREE_STATE}}

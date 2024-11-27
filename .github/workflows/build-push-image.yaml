@@ -1,0 +1,29 @@
+name: Image
+
+on:
+  push:
+    branches:
+      - main
+  # pull_request:
+  #   branches:
+  #     - main
+  #   types: [ labeled, unlabeled, opened, synchronize, reopened ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  build-and-publish:
+    permissions:
+      contents: read
+      packages: write 
+    uses: ./.github/workflows/image-reuse.yaml
+    with:
+      ghcr_image_name: ${{ vars.CI_REGISTRY_IMAGE }}
+      push: true
+    secrets:
+      ghcr_username: ${{ github.actor }}
+      ghcr_password: ${{ secrets.GITHUB_TOKEN }}
