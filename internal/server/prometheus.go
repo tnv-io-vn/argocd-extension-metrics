@@ -111,6 +111,7 @@ func executeGraphQuery(ctx *gin.Context, queryExpression string, env map[string]
 
 	if err != nil {
 		fmt.Println("------------>: ERROR query")
+		fmt.Printf("error querying prometheus: %s", err)
 		return nil, warnings, fmt.Errorf("error querying prometheus: %s", err)
 	}
 
@@ -162,6 +163,7 @@ func (pp *PrometheusProvider) execute(ctx *gin.Context) {
 		result, warnings, err := executeGraphQuery(ctx, graph.QueryExpression, env, duration, pp)
 
 		if err != nil {
+
 			ctx.JSON(http.StatusBadRequest, err)
 			return
 		}
