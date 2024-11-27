@@ -110,12 +110,14 @@ func executeGraphQuery(ctx *gin.Context, queryExpression string, env map[string]
 	result, warnings, err := pp.provider.QueryRange(ctx, strQuery, r)
 
 	if err != nil {
+		fmt.Println("------------>: ERROR query")
 		return nil, warnings, fmt.Errorf("error querying prometheus: %s", err)
 	}
 
 	if len(warnings) > 0 {
 		return result, warnings, fmt.Errorf("query warnings: %s", err)
 	}
+	fmt.Println("------------>: Query success")
 
 	return result, nil, nil
 }
